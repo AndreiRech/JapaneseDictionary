@@ -1,0 +1,79 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id Int @id @default(autoincrement())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  email String @unique
+  hash String
+
+  firstName String?
+  lastName String?
+
+  words Word[]
+  kanjis Kanji[]
+
+  @@map("users")
+}
+
+model Word {
+  id Int @id @default(autoincrement())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  word String
+  pronunciation String
+  meaning String
+  sentence String?
+  kanjis WordKanji[]
+
+  userId  Int
+  user  User @relation(fields: [userId], references: [id])
+
+  @@map("words")
+}
+
+model Kanji {
+  id Int @id @default(autoincrement())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  kanji String
+  onyomi String?
+  kunyomi String?
+  words WordKanji[]
+
+  userId  Int
+  user  User @relation(fields: [userId], references: [id])
+
+  @@map("kanjis")
+}
+
+model WordKanji {
+  id Int @id @default(autoincrement())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  wordId Int
+  kanjiId Int
+
+  words Word @relation(fields: [wordId], references: [id])
+  kanjis Kanji @relation(fields: [kanjiId], references: [id])
+
+  @@unique([wordId, kanjiId])
+  @@map("wordsKanji")
+}
