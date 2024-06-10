@@ -42,7 +42,7 @@ model Word {
   kanjis WordKanji[]
 
   userId  Int
-  user  User @relation(fields: [userId], references: [id])
+  user  User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@map("words")
 }
@@ -58,7 +58,7 @@ model Kanji {
   words WordKanji[]
 
   userId  Int
-  user  User @relation(fields: [userId], references: [id])
+  user  User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@map("kanjis")
 }
@@ -71,8 +71,8 @@ model WordKanji {
   wordId Int
   kanjiId Int
 
-  words Word @relation(fields: [wordId], references: [id])
-  kanjis Kanji @relation(fields: [kanjiId], references: [id])
+  words Word @relation(fields: [wordId], references: [id], onDelete: Cascade)
+  kanjis Kanji @relation(fields: [kanjiId], references: [id], onDelete: Cascade)
 
   @@unique([wordId, kanjiId])
   @@map("wordsKanji")
