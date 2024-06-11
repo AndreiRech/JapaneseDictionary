@@ -1,4 +1,16 @@
-import { Body, Controller, Delete, Get, HttpCode, HttpStatus, Param, ParseIntPipe, Patch, Post, UseGuards } from "@nestjs/common";
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  HttpCode,
+  HttpStatus,
+  Param,
+  ParseIntPipe,
+  Patch,
+  Post,
+  UseGuards,
+} from "@nestjs/common";
 import { JwtGuard } from "../auth/guard";
 import { WordService } from "./word.service";
 import { GetUser } from "../auth/decorator";
@@ -19,12 +31,15 @@ export class WordController {
   }
 
   @Get(":meaning")
-  getWordMeaning(@GetUser("id") userId: number, @Param("meaning", ParseIntPipe) meaning: string) {
+  getWordMeaning(@GetUser("id") userId: number, @Param("meaning") meaning: string) {
     return this.wordsService.getWordMeaning(userId, meaning);
   }
 
   @Get(":pronunciation")
-  getWordPronunciation(@GetUser("id") userId: number, @Param("meaning", ParseIntPipe) pronunciation: string) {
+  getWordPronunciation(
+    @GetUser("id") userId: number,
+    @Param("pronunciation") pronunciation: string,
+  ) {
     return this.wordsService.getWordPronunciation(userId, pronunciation);
   }
 
@@ -34,10 +49,14 @@ export class WordController {
   }
 
   @Patch(":id")
-  editWord(@GetUser("id") userId: number, @Param("id", ParseIntPipe) wordId: number, @Body() dto: EditWordDto,) {
+  editWord(
+    @GetUser("id") userId: number,
+    @Param("id", ParseIntPipe) wordId: number,
+    @Body() dto: EditWordDto,
+  ) {
     return this.wordsService.editWord(userId, wordId, dto);
   }
-  
+
   @HttpCode(HttpStatus.NO_CONTENT)
   @Delete(":id")
   deleteWord(@GetUser("id") userId: number, @Param("id", ParseIntPipe) wordId: number) {
