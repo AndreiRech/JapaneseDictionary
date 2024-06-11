@@ -8,9 +8,9 @@ export class WordService {
   getWords(userId: number) {
     return this.prisma.word.findMany({
       where: {
-        id: userId
-      }
-    })
+        id: userId,
+      },
+    });
   }
 
   getWordId(userId: number, wordId: number) {
@@ -58,8 +58,7 @@ export class WordService {
       },
     });
 
-    if (!word || word.userId !== userId)
-      throw new ForbiddenException("Access to resources denied");
+    if (!word || word.userId !== userId) throw new ForbiddenException("Access to resources denied");
 
     return this.prisma.word.update({
       where: {
@@ -78,8 +77,7 @@ export class WordService {
       },
     });
 
-    if (!word || word.userId !== userId)
-      throw new ForbiddenException("Access to resources denied");
+    if (!word || word.userId !== userId) throw new ForbiddenException("Access to resources denied");
 
     await this.prisma.word.delete({
       where: {
