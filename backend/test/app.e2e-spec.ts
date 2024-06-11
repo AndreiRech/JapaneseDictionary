@@ -5,7 +5,8 @@ import { PrismaService } from "../src/prisma/prisma.service";
 import * as pactum from "pactum";
 import { AuthDto } from "../src/auth/dto";
 import { EditUserDto } from "../src/user/dto";
-import { CreateKanjiDto, EditKanjiDto } from "../src/kanji/dto";
+import { CreateKanjiDto, CreateKanjiWordDto, EditKanjiDto } from "../src/kanji/dto";
+import { CreateWordDto, EditWordDto } from "../src/word/dto";
 
 describe("App e2e", () => {
   let app: INestApplication;
@@ -123,19 +124,118 @@ describe("App e2e", () => {
   });
 
   describe("Words", () => {
-    describe("Get Word", () => {});
+    describe("Get Empty Words", () => {
+      it("Should get Words", () => {
+        return pactum
+          .spec()
+          .get("/words")
+          .withHeaders({ Authorization: "Bearer $S{userAt}" })
+          .expectStatus(200)
+          .expectBody([]);
+      });
+    });
 
-    describe("Get Word by Id", () => {});
+    describe("Create Word", () => {
+      const dto: CreateWordDto = {
+        word: "正月",
+        pronunciation: "しょうがつ",
+        meaning: "New Year",
+      };
+      it("Should create word", () => {
+        return pactum
+          .spec()
+          .post("/words/create")
+          .withHeaders({ Authorization: "Bearer $S{userAt}" })
+          .withBody(dto)
+          .expectStatus(201)
+          .stores("wordId", "id")
+          .stores("wordMeaning", "meaning")
+          .stores("wordPronunciation", "pronunciation");
+      });
+    });
 
-    describe("Get Word by Meaning", () => {});
+    describe("Get Word", () => {
+      it("Should get Words", () => {
+        return pactum
+          .spec()
+          .get("/words")
+          .withHeaders({ Authorization: "Bearer $S{userAt}" })
+          .expectStatus(200)
+          .expectJsonLength(1);
+      });
+    });
 
-    describe("Get Word by Pronunciation", () => {});
+    describe("Get Word by Id", () => {
+      it("Should get words by id", () => {
+        return pactum
+          .spec()
+          .get("/words/{id}")
+          .withPathParams("id", "$S{wordId}")
+          .withHeaders({ Authorization: "Bearer $S{userAt}" })
+          .expectStatus(200)
+          .expectBodyContains("$S{wordId}");
+      });
+    });
 
-    describe("Create Word", () => {});
+    describe("Get Word by Meaning", () => {
+      it("Should get words by meaning", () => {
+        return pactum
+          .spec()
+          .get("/words/{meaning}")
+          .withPathParams("meaning", "$S{wordMeaning}")
+          .withHeaders({ Authorization: "Bearer $S{userAt}" })
+          .expectStatus(200)
+          .expectBodyContains("$S{wordMeaning}");
+      });
+    });
 
-    describe("Edit Word by Id", () => {});
+    describe("Get Word by Pronunciation", () => {
+      it("Should get words by pronunciation", () => {
+        return pactum
+          .spec()
+          .get("/words/{pronunciation}")
+          .withPathParams("pronunciation", "$S{wordPronunciation}")
+          .withHeaders({ Authorization: "Bearer $S{userAt}" })
+          .expectStatus(200)
+          .expectBodyContains("$S{wordPronunciation}");
+      });
+    });
 
-    describe("Remove Word by Id", () => {});
+    describe("Edit Word by Id", () => {
+      const dto: EditWordDto = {
+        sentence: "正月はすぐそこまで来ている",
+      };
+      it("Should edit words", () => {
+        return pactum
+          .spec()
+          .patch("/words/{id}")
+          .withPathParams("id", "$S{wordId}")
+          .withHeaders({ Authorization: "Bearer $S{userAt}" })
+          .withBody(dto)
+          .expectStatus(200)
+          .expectBodyContains(dto.sentence);
+      });
+    });
+
+    describe("Remove Word by Id", () => {
+      it("Should delete Words", () => {
+        return pactum
+          .spec()
+          .delete("/words/{id}")
+          .withPathParams("id", "$S{wordId}")
+          .withHeaders({ Authorization: "Bearer $S{userAt}" })
+          .expectStatus(204);
+      });
+
+      it("Should get empty words", () => {
+        return pactum
+          .spec()
+          .get("/words")
+          .withHeaders({ Authorization: "Bearer $S{userAt}" })
+          .expectStatus(200)
+          .expectJsonLength(0);
+      });
+    });
   });
 
   describe("Kanjis", () => {
@@ -189,7 +289,20 @@ describe("App e2e", () => {
       });
     });
 
-    describe("Create Kanji Word Association", () => {});
+    describe("Create Kanji Word Association", () => {
+      const dto: CreateKanjiWordDto = {
+        wordId: pactum.parse["wordId"],
+        kanjiId: pactum.parse["kanjiId"],
+      };
+      it("Should create kanji - word association", () => {
+        return pactum
+          .spec()
+          .post("/kanjis/associate")
+          .withHeaders({ Authorization: "Bearer $S{userAt}" })
+          .withBody(dto)
+          .expectStatus(201);
+      });
+    });
 
     describe("Edit Kanji by Id", () => {
       const dto: EditKanjiDto = {
