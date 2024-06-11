@@ -3,8 +3,9 @@ import { AppModule } from "../src/app.module";
 import { INestApplication, ValidationPipe } from "@nestjs/common";
 import { PrismaService } from "../src/prisma/prisma.service";
 import * as pactum from "pactum";
-import { AuthDto } from "src/auth/dto";
-import { EditUserDto } from "src/user/dto";
+import { AuthDto } from "../src/auth/dto";
+import { EditUserDto } from "../src/user/dto";
+import { CreateKanjiDto, EditKanjiDto } from "../src/kanji/dto";
 
 describe("App e2e", () => {
   let app: INestApplication;
@@ -121,22 +122,6 @@ describe("App e2e", () => {
     describe("Remove User", () => {});
   });
 
-  describe("Kanjis", () => {
-    describe("Get Kanji", () => {});
-
-    describe("Get Kanji by Id", () => {});
-
-    describe("Get all Kanjis", () => {});
-
-    describe("Create Kanji", () => {});
-
-    describe("Create Kanji Word Association", () => {});
-
-    describe("Edit Kanji by Id", () => {});
-
-    describe("Remove Kanji by Id", () => {});
-  });
-
   describe("Words", () => {
     describe("Get Word", () => {});
 
@@ -146,12 +131,100 @@ describe("App e2e", () => {
 
     describe("Get Word by Pronunciation", () => {});
 
-    describe("Get all Words", () => {});
-
     describe("Create Word", () => {});
 
     describe("Edit Word by Id", () => {});
 
     describe("Remove Word by Id", () => {});
+  });
+
+  describe("Kanjis", () => {
+    describe("Get Empty Kanjis", () => {
+      it("Should get kanjis", () => {
+        return pactum
+          .spec()
+          .get("/kanjis")
+          .withHeaders({ Authorization: "Bearer $S{userAt}" })
+          .expectStatus(200)
+          .expectBody([]);
+      });
+    });
+
+    describe("Create Kanji", () => {
+      const dto: CreateKanjiDto = {
+        kanji: "正",
+        onyomi: "セイ ショウ",
+      };
+      it("Should create kanji", () => {
+        return pactum
+          .spec()
+          .post("/kanjis/create")
+          .withHeaders({ Authorization: "Bearer $S{userAt}" })
+          .withBody(dto)
+          .expectStatus(201)
+          .stores("kanjiId", "id");
+      });
+    });
+
+    describe("Get Kanji", () => {
+      it("Should get kanjis", () => {
+        return pactum
+          .spec()
+          .get("/kanjis")
+          .withHeaders({ Authorization: "Bearer $S{userAt}" })
+          .expectStatus(200)
+          .expectJsonLength(1);
+      });
+    });
+
+    describe("Get Kanji by Id", () => {
+      it("Should get kanjis by id", () => {
+        return pactum
+          .spec()
+          .get("/kanjis/{id}")
+          .withPathParams("id", "$S{kanjiId}")
+          .withHeaders({ Authorization: "Bearer $S{userAt}" })
+          .expectStatus(200)
+          .expectBodyContains("$S{kanjiId}");
+      });
+    });
+
+    describe("Create Kanji Word Association", () => {});
+
+    describe("Edit Kanji by Id", () => {
+      const dto: EditKanjiDto = {
+        kunyomi: "ただ まさ",
+      };
+      it("Should edit kanjis", () => {
+        return pactum
+          .spec()
+          .patch("/kanjis/{id}")
+          .withPathParams("id", "$S{kanjiId}")
+          .withHeaders({ Authorization: "Bearer $S{userAt}" })
+          .withBody(dto)
+          .expectStatus(200)
+          .expectBodyContains(dto.kunyomi);
+      });
+    });
+
+    describe("Remove Kanji by Id", () => {
+      it("Should delete kanjis", () => {
+        return pactum
+          .spec()
+          .delete("/kanjis/{id}")
+          .withPathParams("id", "$S{kanjiId}")
+          .withHeaders({ Authorization: "Bearer $S{userAt}" })
+          .expectStatus(204);
+      });
+
+      it("Should get empty kanjis", () => {
+        return pactum
+          .spec()
+          .get("/kanjis")
+          .withHeaders({ Authorization: "Bearer $S{userAt}" })
+          .expectStatus(200)
+          .expectJsonLength(0);
+      });
+    });
   });
 });
