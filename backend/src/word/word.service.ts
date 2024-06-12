@@ -8,7 +8,7 @@ export class WordService {
   getWords(userId: number) {
     return this.prisma.word.findMany({
       where: {
-        id: userId,
+        userId,
       },
     });
   }
@@ -25,7 +25,10 @@ export class WordService {
   getWordMeaning(userId: number, meaning: string) {
     return this.prisma.word.findMany({
       where: {
-        meaning: meaning,
+        meaning: {
+          contains: meaning,
+          mode: "insensitive",
+        },
         userId,
       },
     });
@@ -34,7 +37,10 @@ export class WordService {
   getWordPronunciation(userId: number, pronunciation: string) {
     return this.prisma.word.findMany({
       where: {
-        pronunciation: pronunciation,
+        pronunciation: {
+          contains: pronunciation,
+          mode: "insensitive",
+        },
         userId,
       },
     });
