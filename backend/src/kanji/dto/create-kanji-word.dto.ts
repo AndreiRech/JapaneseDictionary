@@ -1,11 +1,11 @@
-import { IsNotEmpty, IsString } from "class-validator";
+import { IsNotEmpty, IsNumber } from "class-validator";
 
 export class CreateKanjiWordDto {
-  @IsString()
   @IsNotEmpty()
+  @IsNumber()
   wordId: number;
 
-  @IsString()
   @IsNotEmpty()
+  @IsNumber()
   kanjiId: number;
 }
