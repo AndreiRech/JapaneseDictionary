@@ -291,8 +291,8 @@ describe("App e2e", () => {
 
     describe("Create Kanji Word Association", () => {
       const dto: CreateKanjiWordDto = {
-        wordId: pactum.parse["wordId"],
-        kanjiId: pactum.parse["kanjiId"],
+        wordId: parseInt("$S{wordId}", 10),
+        kanjiId: parseInt("$S{kanjiId}", 10),
       };
       it("Should create kanji - word association", () => {
         return pactum
